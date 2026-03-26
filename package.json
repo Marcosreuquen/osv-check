@@ -4,7 +4,7 @@
   "description": "CLI tool to check npm packages for known vulnerabilities using the OSV.dev API",
   "type": "module",
   "bin": {
-    "osv-check": "./bin/osv-check.js"
+    "osv-check": "bin/osv-check.js"
   },
   "main": "./src/api.js",
   "exports": {
