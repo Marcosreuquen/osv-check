@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-commit] Running smoke test..."
+node bin/osv-check.js --version
+node bin/osv-check.js --help > /dev/null
+
+echo "[pre-commit] All checks passed."

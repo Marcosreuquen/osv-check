@@ -1,0 +1,55 @@
+site_name: osv-check
+site_url: https://marcosreuquen.github.io/osv-check/
+site_description: CLI tool to check npm packages for known vulnerabilities using the OSV.dev API.
+site_author: Marcos Reuquen
+repo_url: https://github.com/Marcosreuquen/osv-check
+repo_name: Marcosreuquen/osv-check
+
+docs_dir: site-docs
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep-purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep-purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Configuration: getting-started/configuration.md
+  - Reference:
+    - CLI Commands: reference/cli.md
+    - Programmatic API: reference/api.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Architecture: development/architecture.md
+    - Changelog: development/changelog.md
