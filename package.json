@@ -1,5 +1,5 @@
 {
-  "name": "osv-check",
+  "name": "@marcosreuquen/osv-check",
   "version": "1.0.0",
   "description": "CLI tool to check npm packages for known vulnerabilities using the OSV.dev API",
   "type": "module",
