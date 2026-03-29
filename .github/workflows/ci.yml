@@ -9,24 +9,26 @@ on:
 
 jobs:
   test:
-    name: Tests (Node 22)
+    name: Tests (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['22']
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ matrix.node-version }}
 
-      - name: Show Node.js version
-        run: node --version
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
 
       - name: CLI smoke test
         run: |
           node bin/osv-check.js --version
           node bin/osv-check.js --help
-
-      - name: Test single package query
-        run: node bin/osv-check.js lodash@4.17.20
-        continue-on-error: true

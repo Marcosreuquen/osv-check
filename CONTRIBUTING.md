@@ -45,7 +45,7 @@ site-docs/         ← Documentation source (MkDocs)
 
 ### Code Style
 
-- **Language**: JavaScript (ES Modules), Node.js >= 18
+- **Language**: JavaScript (ES Modules), Node.js >= 22
 - **Zero dependencies**: Do not add external npm dependencies
 - **Output discipline**: `stdout` for user-facing output, `stderr` for errors
 - **Exit codes**: `0` = no vulnerabilities, `1` = vulnerabilities found or error

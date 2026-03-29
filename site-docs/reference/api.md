@@ -6,7 +6,7 @@
 import { queryPackage, queryMultiple } from 'osv-check';
 ```
 
-## `queryPackage(name, version, ecosystem?)`
+## `queryPackage(name, version?, ecosystem?)`
 
 Query the OSV API for vulnerabilities in a specific package.
 
@@ -15,21 +15,28 @@ Query the OSV API for vulnerabilities in a specific package.
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `name` | `string` | — | Package name (e.g. `"lodash"`) |
-| `version` | `string` | — | Package version (e.g. `"4.17.15"`) |
+| `version` | `string` | `undefined` | Package version. If omitted, returns all known vulnerabilities. |
 | `ecosystem` | `string` | `"npm"` | Package ecosystem |
 
 ### Returns
 
 `Promise<{ vulns: Array }>` — The raw OSV API response.
 
-### Example
+### Examples
 
 ```js
+// Check a specific version
 const result = await queryPackage('lodash', '4.17.15');
-
-if (result.vulns && result.vulns.length > 0) {
+if (result.vulns?.length > 0) {
   console.log(`Found ${result.vulns.length} vulnerabilities`);
 }
+
+// Get all vulnerabilities (no version)
+const all = await queryPackage('lodash');
+console.log(`${all.vulns?.length} total vulnerabilities across all versions`);
+
+// PyPI package
+const pyResult = await queryPackage('requests', '2.25.0', 'PyPI');
 ```
 
 ## `queryMultiple(packages)`

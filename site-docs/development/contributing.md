@@ -12,7 +12,7 @@ node bin/osv-check.js --version   # verify it works
 
 ## Code Style
 
-- JavaScript (ES Modules), Node.js >= 18
+- JavaScript (ES Modules), Node.js >= 22
 - Zero external dependencies
 - `stdout` for user-facing output; `stderr` for errors
 

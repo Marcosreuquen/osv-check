@@ -51,20 +51,90 @@ function colorize(severity, text) {
 }
 
 /**
- * Report vulnerabilities for a single package.
+ * Report all vulnerabilities for a package (--all mode).
+ * Shows affected version ranges for each vulnerability.
  */
-export function reportSingle(name, version, vulns) {
+export function reportAll(name, vulns, ecosystem) {
   if (!vulns || vulns.length === 0) {
-    console.log(`\n${BOLD}✅ ${name}@${version}${RESET} — no known vulnerabilities\n`);
+    console.log(`\n${BOLD}✅ ${name}${RESET} — no known vulnerabilities across any version\n`);
     return 0;
   }
 
-  console.log(`\n${BOLD}🚨 ${name}@${version}${RESET} — ${vulns.length} vulnerabilit${vulns.length === 1 ? 'y' : 'ies'} found\n`);
+  console.log(`\n${BOLD}🚨 ${name}${RESET} — ${vulns.length} vulnerabilit${vulns.length === 1 ? 'y' : 'ies'} found across all versions\n`);
 
   for (const vuln of vulns) {
     const severity = getSeverity(vuln);
     const aliases = vuln.aliases?.join(', ') || '';
-    const fixedVersions = getFixedVersions(vuln, name);
+    const fixedVersions = getFixedVersions(vuln, name, ecosystem);
+    const affectedVersions = getAffectedVersions(vuln, name, ecosystem);
+
+    console.log(`  ${colorize(severity, `[${severity}]`)} ${BOLD}${vuln.id}${RESET}${aliases ? ` (${aliases})` : ''}`);
+    console.log(`    ${vuln.summary || 'No description available'}`);
+    if (affectedVersions) {
+      console.log(`    ${DIM}Affected: ${affectedVersions}${RESET}`);
+    }
+    if (fixedVersions) {
+      console.log(`    ${DIM}Fixed in: ${fixedVersions}${RESET}`);
+    }
+    console.log();
+  }
+
+  return vulns.length;
+}
+
+function getAffectedVersions(vuln, packageName, ecosystem) {
+  const affected = vuln.affected?.find(
+    (a) => a.package?.name === packageName && (!ecosystem || a.package?.ecosystem === ecosystem)
+  );
+  if (!affected) return null;
+
+  const parts = [];
+
+  // Version ranges (introduced → fixed)
+  if (affected.ranges) {
+    for (const range of affected.ranges) {
+      const events = range.events || [];
+      const introduced = events.find((e) => e.introduced)?.introduced;
+      const fixed = events.find((e) => e.fixed)?.fixed;
+
+      if (introduced && fixed) {
+        parts.push(`${introduced} — ${fixed}`);
+      } else if (introduced) {
+        parts.push(`>= ${introduced}`);
+      }
+    }
+  }
+
+  // Specific listed versions (fallback if no ranges)
+  if (parts.length === 0 && affected.versions?.length) {
+    const versions = affected.versions;
+    if (versions.length <= 5) {
+      parts.push(versions.join(', '));
+    } else {
+      parts.push(`${versions.slice(0, 5).join(', ')} (+${versions.length - 5} more)`);
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' | ') : null;
+}
+
+/**
+ * Report vulnerabilities for a single package.
+ */
+export function reportSingle(name, version, vulns, ecosystem) {
+  const label = version ? `${name}@${version}` : name;
+
+  if (!vulns || vulns.length === 0) {
+    console.log(`\n${BOLD}✅ ${label}${RESET} — no known vulnerabilities\n`);
+    return 0;
+  }
+
+  console.log(`\n${BOLD}🚨 ${label}${RESET} — ${vulns.length} vulnerabilit${vulns.length === 1 ? 'y' : 'ies'} found\n`);
+
+  for (const vuln of vulns) {
+    const severity = getSeverity(vuln);
+    const aliases = vuln.aliases?.join(', ') || '';
+    const fixedVersions = getFixedVersions(vuln, name, ecosystem);
 
     console.log(`  ${colorize(severity, `[${severity}]`)} ${BOLD}${vuln.id}${RESET}${aliases ? ` (${aliases})` : ''}`);
     console.log(`    ${vuln.summary || 'No description available'}`);
@@ -77,9 +147,9 @@ export function reportSingle(name, version, vulns) {
   return vulns.length;
 }
 
-function getFixedVersions(vuln, packageName) {
+function getFixedVersions(vuln, packageName, ecosystem) {
   const affected = vuln.affected?.find(
-    (a) => a.package?.name === packageName && a.package?.ecosystem === 'npm'
+    (a) => a.package?.name === packageName && (!ecosystem || a.package?.ecosystem === ecosystem)
   );
   if (!affected?.ranges) return null;
 
@@ -104,7 +174,7 @@ export function reportMultiple(results) {
 
   if (vulnerable.length > 0) {
     for (const result of vulnerable) {
-      totalVulns += reportSingle(result.name, result.version, result.vulns);
+      totalVulns += reportSingle(result.name, result.version, result.vulns, result.ecosystem);
       packagesWithVulns++;
     }
   }
